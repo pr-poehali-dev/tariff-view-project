@@ -21,12 +21,25 @@ interface Tariff {
   description: string;
   features: string[];
   isPopular?: boolean;
+  currency: 'RUB' | 'USD' | 'EUR';
+  isVirtual: boolean;
+  issuePrice: number;
+  serviceFee: number;
+  gracePeriod: number;
+  validityPeriod: number;
+  paymentPeriod: number;
+  interestRate: number;
+  creditLimit: number;
+  availableFrom: string;
+  availableTo: string;
+  status: 'available' | 'unavailable';
 }
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedTariff, setSelectedTariff] = useState<Tariff | null>(null);
 
   const tariffs: Tariff[] = [
     {
@@ -35,6 +48,18 @@ const Index = () => {
       price: 0,
       description: 'Для первых шагов в цифровом банкинге',
       features: ['Бесплатное обслуживание', 'Снятие до 50 000 ₽', 'Cashback 1%'],
+      currency: 'RUB',
+      isVirtual: true,
+      issuePrice: 0,
+      serviceFee: 0,
+      gracePeriod: 50,
+      validityPeriod: 1095,
+      paymentPeriod: 30,
+      interestRate: 19.9,
+      creditLimit: 100000,
+      availableFrom: '2024-01-01',
+      availableTo: '2025-12-31',
+      status: 'available',
     },
     {
       id: '2',
@@ -43,6 +68,18 @@ const Index = () => {
       description: 'Оптимальное решение для повседневных операций',
       features: ['Снятие до 150 000 ₽', 'Cashback 3%', 'Бесплатные переводы', 'SMS-уведомления'],
       isPopular: true,
+      currency: 'RUB',
+      isVirtual: false,
+      issuePrice: 500,
+      serviceFee: 299,
+      gracePeriod: 100,
+      validityPeriod: 1095,
+      paymentPeriod: 30,
+      interestRate: 15.9,
+      creditLimit: 300000,
+      availableFrom: '2024-01-01',
+      availableTo: '2025-12-31',
+      status: 'available',
     },
     {
       id: '3',
@@ -50,6 +87,18 @@ const Index = () => {
       price: 999,
       description: 'Максимум возможностей для активных пользователей',
       features: ['Неограниченное снятие', 'Cashback 5%', 'Консьерж-сервис', 'Страхование поездок'],
+      currency: 'RUB',
+      isVirtual: false,
+      issuePrice: 1000,
+      serviceFee: 999,
+      gracePeriod: 120,
+      validityPeriod: 1825,
+      paymentPeriod: 30,
+      interestRate: 12.9,
+      creditLimit: 1000000,
+      availableFrom: '2024-01-01',
+      availableTo: '2025-12-31',
+      status: 'available',
     },
     {
       id: '4',
@@ -57,6 +106,18 @@ const Index = () => {
       price: 1499,
       description: 'Для предпринимателей и бизнеса',
       features: ['Бухгалтерия', 'Корпоративные лимиты', 'Приоритетная поддержка', 'API интеграция'],
+      currency: 'RUB',
+      isVirtual: false,
+      issuePrice: 2000,
+      serviceFee: 1499,
+      gracePeriod: 150,
+      validityPeriod: 1825,
+      paymentPeriod: 30,
+      interestRate: 9.9,
+      creditLimit: 5000000,
+      availableFrom: '2024-01-01',
+      availableTo: '2025-12-31',
+      status: 'available',
     },
   ];
 
@@ -194,6 +255,7 @@ const Index = () => {
                 </div>
                 <Button
                   variant="outline"
+                  onClick={() => setSelectedTariff(tariff)}
                   className="w-full rounded-lg border-[#269349] text-[#269349] hover:bg-[#269349] hover:text-white"
                 >
                   Подробнее
@@ -213,6 +275,122 @@ const Index = () => {
           </Card>
         )}
       </div>
+
+      <Dialog open={!!selectedTariff} onOpenChange={() => setSelectedTariff(null)}>
+        <DialogContent className="rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">{selectedTariff?.name}</DialogTitle>
+            <DialogDescription>
+              Детальная информация о тарифе
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTariff && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Название тарифа</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.name}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Статус доступности</Label>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${selectedTariff.status === 'available' ? 'bg-[#269349]' : 'bg-red-500'}`} />
+                    <p className="text-sm font-medium">
+                      {selectedTariff.status === 'available' ? 'Доступен' : 'Недоступен'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs text-[#999999]">Описание тарифа</Label>
+                <p className="text-sm text-[#333333]">{selectedTariff.description}</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Валюта</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.currency}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Виртуальная карта</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.isVirtual ? 'Да' : 'Нет'}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Стоимость выпуска</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.issuePrice} ₽</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Стоимость обслуживания</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.serviceFee} ₽/мес</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Беспроцентный период</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.gracePeriod} дней</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Срок действия карты</Label>
+                  <p className="text-sm font-medium text-[#333333]">{Math.floor(selectedTariff.validityPeriod / 365)} лет</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Период погашения</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.paymentPeriod} дней</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Процент карты</Label>
+                  <p className="text-sm font-medium text-[#333333]">{selectedTariff.interestRate}%</p>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs text-[#999999]">Кредитный лимит</Label>
+                <p className="text-sm font-medium text-[#333333]">{selectedTariff.creditLimit.toLocaleString('ru-RU')} ₽</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Доступен с</Label>
+                  <p className="text-sm font-medium text-[#333333]">{new Date(selectedTariff.availableFrom).toLocaleDateString('ru-RU')}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#999999]">Доступен до</Label>
+                  <p className="text-sm font-medium text-[#333333]">{new Date(selectedTariff.availableTo).toLocaleDateString('ru-RU')}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs text-[#999999]">Преимущества</Label>
+                <div className="space-y-2">
+                  {selectedTariff.features.map((feature, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Icon name="Check" size={16} className="text-[#269349] mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-[#333333]">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t">
+                <Button className="flex-1 bg-[#269349] hover:bg-[#1f7a3a] text-white rounded-lg">
+                  <Icon name="Edit" size={16} className="mr-2" />
+                  Изменить
+                </Button>
+                <Button variant="outline" className="flex-1 rounded-lg border-[#E5E5E5] hover:bg-[#FAFAFA]">
+                  <Icon name="Archive" size={16} className="mr-2" />
+                  Архивировать
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
